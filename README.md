@@ -8,6 +8,7 @@ A análise foi estruturada em **10 perguntas de negócio**, culminando na criaç
 ---
 
 ## Tecnologias e Ferramentas Utilizadas
+* **Python:**(pandas, matplotlib, seaborn): Utilizado na Análise Exploratória de Dados (EDA), limpeza de dados e geração programática das visualizações.
 * **SQL:** Consultas analíticas para agregação de dados e cálculo de métricas operacionais.
 * **Google Sheets:** Limpeza de dados brutos, criação de tabelas dinâmicas, modelos de cálculo e construção do Dashboard de gráficos.
 
@@ -21,6 +22,6 @@ Todo o trabalho de modelação de dados, tabelas dinâmicas por pergunta e visua
 ---
 
 ## 📁 Estrutura do Repositório
-* `dados_suporte_operacoes.xlsx` / `.csv` — Base de dados bruta tratada com 3.000 registos.
+* `dados_suporte_operacoes.csv` — Base de dados bruta tratada com 3.000 registos.
 * `consultas_operacionais.sql` — Ficheiro com as 10 queries SQL desenvolvidas para o projeto.
 * `README.md` — Documentação global do projeto.
