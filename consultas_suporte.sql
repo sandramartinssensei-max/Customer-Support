@@ -1,27 +1,13 @@
 -- ============================================================================
 -- PROJETO DE DATA ANALYTICS: OPERAÇÕES DE SUPORTE AO CLIENTE
--- Script SQL Completo (10 Consultas Estratégicas para PostgreSQL / MySQL)
+-- Script SQL Definitivo (10 Consultas Estratégicas Perfeitamente Conciliadas)
 -- Dataset: suporte_operacoes
 -- ============================================================================
 
--- Tabela: suporte_operacoes
--- Colunas Reais:
---   - id_interacao (INT)
---   - data_contacto (DATE)
---   - canal (VARCHAR)
---   - equipa (VARCHAR)
---   - id_agente (VARCHAR)
---   - fcr (BOOLEAN)
---   - spd_segundos (INT)
---   - aht_segundos (INT)
---   - tht_segundos (INT)
---   - nps (INT)
---   - qa_score (DECIMAL)
-
--- ============================================================================
+-- ----------------------------------------------------------------------------
 -- 1. VOLUME TOTAL DE CONTACTOS POR MÊS
--- Objetivo: Identificar sazonalidade e tendências de volume ao longo do ano.
--- ============================================================================
+-- Gráfico 1: Gráfico de Colunas (Ano-Mês vs Total de Contactos)
+-- ----------------------------------------------------------------------------
 SELECT 
     DATE_TRUNC('month', data_contacto) AS mes,
     COUNT(id_interacao) AS total_contactos
@@ -29,10 +15,10 @@ FROM suporte_operacoes
 GROUP BY DATE_TRUNC('month', data_contacto)
 ORDER BY mes ASC;
 
--- ============================================================================
+-- ----------------------------------------------------------------------------
 -- 2. DISTRIBUIÇÃO DE CONTACTOS POR CANAL DE ATENDIMENTO
--- Objetivo: Analisar a adesão dos clientes a cada canal (Voz, Chat, Email).
--- ============================================================================
+-- Gráfico 2: Gráfico Circular / Donut (Percentagem por Voz, Chat, Email)
+-- ----------------------------------------------------------------------------
 SELECT 
     canal,
     COUNT(id_interacao) AS total_contactos,
@@ -41,10 +27,10 @@ FROM suporte_operacoes
 GROUP BY canal
 ORDER BY total_contactos DESC;
 
--- ============================================================================
--- 3. VOLUME DE CONTACTOS POR EQUIPA OPERACIONAL
--- Objetivo: Avaliar a distribuição de carga de trabalho entre as equipas.
--- ============================================================================
+-- ----------------------------------------------------------------------------
+-- 3. VOLUME TOTAL DE CONTACTOS POR EQUIPA OPERACIONAL
+-- Gráfico 3: Gráfico de Barras Horizontais (Equipa vs Total de Contactos)
+-- ----------------------------------------------------------------------------
 SELECT 
     equipa,
     COUNT(id_interacao) AS total_contactos
@@ -52,23 +38,22 @@ FROM suporte_operacoes
 GROUP BY equipa
 ORDER BY total_contactos DESC;
 
--- ============================================================================
--- 4. TAXA DE FCR (FIRST CONTACT RESOLUTION) POR CANAL
--- Objetivo: Medir a percentagem de problemas resolvidos logo no 1.º contacto.
--- ============================================================================
+-- ----------------------------------------------------------------------------
+-- 4. DISTRIBUIÇÃO DE CANAIS POR EQUIPA OPERACIONAL
+-- Gráfico 4: Gráfico de Colunas Empilhadas (Equipa vs Canais)
+-- ----------------------------------------------------------------------------
 SELECT 
+    equipa,
     canal,
-    COUNT(id_interacao) AS total_contactos,
-    SUM(CASE WHEN fcr = TRUE THEN 1 ELSE 0 END) AS contactos_resolvidos_fcr,
-    ROUND(AVG(CASE WHEN fcr = TRUE THEN 1.0 ELSE 0.0 END) * 100, 2) AS taxa_fcr_percentagem
+    COUNT(id_interacao) AS total_contactos
 FROM suporte_operacoes
-GROUP BY canal
-ORDER BY taxa_fcr_percentagem DESC;
+GROUP BY equipa, canal
+ORDER BY equipa, total_contactos DESC;
 
--- ============================================================================
--- 5. EVOLUÇÃO DIÁRIA DO SPD (SOLVES PER DAY)
--- Objetivo: Monitorizar a produtividade diária global (casos resolvidos/dia).
--- ============================================================================
+-- ----------------------------------------------------------------------------
+-- 5. EVOLUÇÃO DIÁRIA DE RESOLUÇÕES (SPD - SOLVES PER DAY)
+-- Gráfico 5: Gráfico de Linhas (Data de Contacto vs Total de Solves/Dia)
+-- ----------------------------------------------------------------------------
 SELECT 
     data_contacto,
     COUNT(id_interacao) AS total_solves_dia
@@ -76,23 +61,22 @@ FROM suporte_operacoes
 GROUP BY data_contacto
 ORDER BY data_contacto ASC;
 
--- ============================================================================
--- 6. MÉDIA DIÁRIA DE SPD (SOLVES PER DAY) POR EQUIPA
--- Objetivo: Comparar a capacidade diária de resolução de casos entre equipas.
--- ============================================================================
+-- ----------------------------------------------------------------------------
+-- 6. TOP 10 AGENTES COM MAIOR VOLUME DE RESOLUÇÕES (SPD)
+-- Gráfico 6: Gráfico de Barras Horizontais (Top 10 Agentes vs Resoluções)
+-- ----------------------------------------------------------------------------
 SELECT 
-    equipa,
-    COUNT(id_interacao) AS total_casos_resolvidos,
-    COUNT(DISTINCT data_contacto) AS dias_operativos,
-    ROUND(COUNT(id_interacao)::DECIMAL / COUNT(DISTINCT data_contacto), 1) AS media_spd_diario
+    id_agente,
+    COUNT(id_interacao) AS total_casos_resolvidos
 FROM suporte_operacoes
-GROUP BY equipa
-ORDER BY media_spd_diario DESC;
+GROUP BY id_agente
+ORDER BY total_casos_resolvidos DESC
+LIMIT 10;
 
--- ============================================================================
+-- ----------------------------------------------------------------------------
 -- 7. TEMPO MÉDIO DE ATENDIMENTO (AHT) EM MINUTOS POR CANAL
--- Objetivo: Medir a duração média de conversação/atendimento em minutos.
--- ============================================================================
+-- Gráfico 7: Gráfico de Colunas (Canal vs AHT Médio em Minutos)
+-- ----------------------------------------------------------------------------
 SELECT 
     canal,
     ROUND(AVG(aht_segundos) / 60.0, 2) AS aht_medio_minutos
@@ -100,10 +84,10 @@ FROM suporte_operacoes
 GROUP BY canal
 ORDER BY aht_medio_minutos DESC;
 
--- ============================================================================
+-- ----------------------------------------------------------------------------
 -- 8. COMPARATIVO AHT vs. THT EM MINUTOS POR EQUIPA
--- Objetivo: Comparar o tempo de atendimento (AHT) com o tempo total de manipulação (THT).
--- ============================================================================
+-- Gráfico 8: Gráfico de Colunas Agrupadas (Equipa vs AHT min e THT min)
+-- ----------------------------------------------------------------------------
 SELECT 
     equipa,
     ROUND(AVG(aht_segundos) / 60.0, 2) AS aht_medio_minutos,
@@ -113,10 +97,10 @@ FROM suporte_operacoes
 GROUP BY equipa
 ORDER BY tht_medio_minutos DESC;
 
--- ============================================================================
--- 9. SATISFAÇÃO DO CLIENTE (NPS MÉDIO) POR CANAL E EQUIPA
--- Objetivo: Identificar onde a satisfação do cliente é mais elevada ou crítica.
--- ============================================================================
+-- ----------------------------------------------------------------------------
+-- 9. SATISFAÇÃO DO CLIENTE (NPS MÉDIO) POR EQUIPA E CANAL
+-- Gráfico 9: Gráfico de Colunas Agrupadas (Equipa vs NPS por Canal)
+-- ----------------------------------------------------------------------------
 SELECT 
     equipa,
     canal,
@@ -127,10 +111,14 @@ WHERE nps IS NOT NULL
 GROUP BY equipa, canal
 ORDER BY equipa, nps_medio DESC;
 
--- ============================================================================
+-- ----------------------------------------------------------------------------
 -- 10. QUALIDADE OPERACIONAL (QA SCORE MÉDIO) vs. NPS POR EQUIPA
--- Objetivo: Relacionar a qualidade interna (auditorias QA) com a avaliação do cliente (NPS).
--- ============================================================================
+-- Gráfico 10: Gráfico Combinado (QA Score % em Barras + NPS em Linha)
+-- ----------------------------------------------------------------------------
 SELECT 
     equipa,
-    ROUND(AVG(qa_score), 2) AS
+    ROUND(AVG(qa_score), 2) AS qa_score_medio_percentagem,
+    ROUND(AVG(nps), 2) AS nps_medio
+FROM suporte_operacoes
+GROUP BY equipa
+ORDER BY qa_score_medio_percentagem DESC;
