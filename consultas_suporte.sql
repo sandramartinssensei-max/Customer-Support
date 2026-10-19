@@ -111,14 +111,13 @@ WHERE nps IS NOT NULL
 GROUP BY equipa, canal
 ORDER BY equipa, nps_medio DESC;
 
--- ----------------------------------------------------------------------------
--- 10. QUALIDADE OPERACIONAL (QA SCORE) vs. NPS POR EQUIPA
+-- ============================================================================
+-- 10. QUALIDADE OPERACIONAL (QA SCORE) vs. SATISFAÇÃO (NPS) POR EQUIPA
+-- ============================================================================
 SELECT 
     equipa,
-    -- Contagem ou percentagem de conformidade se for texto
-    SUM(CASE WHEN qa_score = 'Sim' OR qa_score = 'Aprovado' THEN 1 ELSE 0 END) * 100.0 / COUNT(id_interacao) AS qa_score_percentagem_conformidade,
+    ROUND(AVG(qa_score), 2) AS qa_score_medio,
     ROUND(AVG(nps), 2) AS nps_medio
 FROM suporte_operacoes
 GROUP BY equipa
-ORDER BY qa_score_percentagem_conformidade DESC;
-ORDER BY qa_score_percentagem_conformidade DESC;
+ORDER BY qa_score_medio DESC;
